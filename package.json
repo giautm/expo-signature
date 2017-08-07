@@ -1,0 +1,13 @@
+{
+  "name": "expo-signature",
+  "version": "1.0.0-beta",
+  "main": "src/index.js",
+  "repository": "https://github.com/giautm/expo-signature.git",
+  "author": "giautm <giau.tmg@gmail.com>",
+  "license": "MIT",
+  "peerDependencies": {
+    "expo": "*",
+    "react": "*",
+    "react-native": "*"
+  }
+}

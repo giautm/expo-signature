@@ -1,0 +1,15 @@
+{
+  "presets": ["babel-preset-expo"],
+  "plugins": [
+    ["babel-plugin-inline-import", {
+      "extensions": [
+        ".glsl"
+      ]
+    }]
+  ],
+  "env": {
+    "development": {
+      "plugins": ["transform-react-jsx-source"]
+    }
+  }
+}
