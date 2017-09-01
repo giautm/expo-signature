@@ -5,7 +5,7 @@ import {
   quadCurve,
   bezierCurve,
 } from './BezierPath';
-import { vec2Average, vec2Equals } from './common';
+import { vec2Equals } from './common';
 
 const ZERO_VECTOR = Vec2.create();
 
@@ -14,6 +14,9 @@ const TWO_PI = Math.PI * 2;
 const sin = Math.sin;
 const cos = Math.cos;
 
+export function vec2Average(out, a, b) {
+  return Vec2.scale(out, Vec2.add(out, a, b), 0.5);
+}
 
 class BezierPath_WeightedPoint {
 

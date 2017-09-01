@@ -1,8 +1,6 @@
 import { EventEmitter } from 'fbemitter';
 import Vec2 from 'gl-matrix-vec2';
 
-import { vec2Average } from './common';
-
 const EVENTS = [
   'doDot',
   'doLinear',
@@ -75,16 +73,16 @@ class BezierProvider extends EventEmitter {
     this.points.length = 0;
   };
 
-  finalizeBezierPath = (nextStartPoint) => {
+  finalizeBezierPath = (startPoint) => {
     /**
      * Smooth the join between beziers by modifying
      * the last pointof the current bezier to equal
      * the average of the points either side of it.
      */
-    const touchPoint2 = this.points[2].point;
-    const touchPoint3 = Vec2.create();
-    vec2Average(touchPoint3, touchPoint2, nextStartPoint);
-    this.points[3] = makeWeightedPoint(touchPoint2, touchPoint3);
+    const point2nd = this.points[2].point;
+    const pointAvg = Vec2.create();
+    Vec2.scale(pointAvg, Vec2.add(pointAvg, point2nd, startPoint), 0.5);
+    this.points[3] = makeWeightedPoint(point2nd, pointAvg);
 
     this.generateBezierPath(true);
   };
