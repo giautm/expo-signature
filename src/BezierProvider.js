@@ -36,41 +36,49 @@ const CONSTANT = 2.0;
 
 export function makeWeightedPoint(a, point) {
   const invertLength = Math.max(0, MAX_LENGTH_RANGE - Vec2.distance(a, point));
-  const weight = GRADIENT * invertLength + CONSTANT;
-  return ({ point, weight });
+  return GRADIENT * invertLength + CONSTANT;
 };
 
 class BezierProvider extends EventEmitter {
   constructor() {
     super();
-    this.points = [];
+    this.length = 0;
+    this.points = [
+      { point: Vec2.create(), weight: 0 },
+      { point: Vec2.create(), weight: 0 },
+      { point: Vec2.create(), weight: 0 },
+      { point: Vec2.create(), weight: 0 },
+    ];
   }
 
   addPoint = (point) => {
-    if (this.points.length === 0) {
-      this.points.push({
-        point,
-        weight: DOT_SIGNATURE_WEIGHT,
-      });
+    if (this.length === 0) {
+      Vec2.copy(this.points[0].point, point);
+      this.points[0].weight = DOT_SIGNATURE_WEIGHT;
+      this.length = 1;
     } else {
-      const previewPoint = this.points[this.points.length - 1].point;
+      const previewPoint = this.points[this.length - 1].point;
       if (Vec2.length(previewPoint, point) < TOUCH_DISTANCE_THRESHOLD) {
         return;
       }
 
-      const isStartPointOfNextLine = this.points.length > 2;
+      const isStartPointOfNextLine = this.length > 2;
       if (isStartPointOfNextLine) {
         this.finalizeBezierPath(point);
-        this.points = this.points.slice(-1);
+        Vec2.copy(this.points[0].point, this.points[3].point);
+        this.points[0].weight = this.points[3].weight;
+        this.length = 1;
       }
-      this.points.push(makeWeightedPoint(previewPoint, point));
+      Vec2.copy(this.points[this.length].point, point);
+      this.points[this.length].weight = makeWeightedPoint(previewPoint, point);
+      this.length++;
     }
 
     this.generateBezierPath();
   };
 
   reset = () => {
-    this.points.length = 0;
+    this.length = 0;
   };
 
   finalizeBezierPath = (point3rd) => {
@@ -80,15 +88,16 @@ class BezierProvider extends EventEmitter {
      * the average of the points either side of it.
      */
     const point2nd = this.points[2].point;
-    const pointAvg = Vec2.create();
+    const pointAvg = this.points[3].point;
     Vec2.scale(pointAvg, Vec2.add(pointAvg, point2nd, point3rd), 0.5);
-    this.points[3] = makeWeightedPoint(point2nd, pointAvg);
+    this.points[3].weight = makeWeightedPoint(point2nd, pointAvg);
+    this.length = 4;
 
     this.generateBezierPath(true);
   };
 
   generateBezierPath = (finalized = false) => {
-    const event = EVENTS[this.points.length - 1];
+    const event = EVENTS[this.length - 1];
     this.emit(event, this.points, finalized);
   };
 }
