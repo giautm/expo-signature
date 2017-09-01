@@ -73,7 +73,7 @@ class BezierProvider extends EventEmitter {
     this.points.length = 0;
   };
 
-  finalizeBezierPath = (startPoint) => {
+  finalizeBezierPath = (point3rd) => {
     /**
      * Smooth the join between beziers by modifying
      * the last pointof the current bezier to equal
@@ -81,7 +81,7 @@ class BezierProvider extends EventEmitter {
      */
     const point2nd = this.points[2].point;
     const pointAvg = Vec2.create();
-    Vec2.scale(pointAvg, Vec2.add(pointAvg, point2nd, startPoint), 0.5);
+    Vec2.scale(pointAvg, Vec2.add(pointAvg, point2nd, point3rd), 0.5);
     this.points[3] = makeWeightedPoint(point2nd, pointAvg);
 
     this.generateBezierPath(true);
