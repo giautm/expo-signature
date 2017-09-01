@@ -34,7 +34,7 @@ const MAX_LENGTH_RANGE = 50.0;
 const GRADIENT = 0.1;
 const CONSTANT = 2.0;
 
-export function makeWeightedPoint(a, point) {
+export function calculateWeight(a, point) {
   const invertLength = Math.max(0, MAX_LENGTH_RANGE - Vec2.distance(a, point));
   return GRADIENT * invertLength + CONSTANT;
 };
@@ -52,27 +52,25 @@ class BezierProvider extends EventEmitter {
   }
 
   addPoint = (point) => {
-    if (this.length === 0) {
-      Vec2.copy(this.points[0].point, point);
-      this.points[0].weight = DOT_SIGNATURE_WEIGHT;
-      this.length = 1;
-    } else {
+    let weight = DOT_SIGNATURE_WEIGHT;
+    if (this.length > 0) {
       const previewPoint = this.points[this.length - 1].point;
       if (Vec2.length(previewPoint, point) < TOUCH_DISTANCE_THRESHOLD) {
         return;
       }
 
-      const isStartPointOfNextLine = this.length > 2;
-      if (isStartPointOfNextLine) {
+      if (this.length > 2) {
         this.finalizeBezierPath(point);
         Vec2.copy(this.points[0].point, this.points[3].point);
         this.points[0].weight = this.points[3].weight;
         this.length = 1;
       }
-      Vec2.copy(this.points[this.length].point, point);
-      this.points[this.length].weight = makeWeightedPoint(previewPoint, point);
-      this.length++;
+      weight = calculateWeight(previewPoint, point);
     }
+
+    Vec2.copy(this.points[this.length].point, point);
+    this.points[this.length].weight = weight;
+    this.length++;
 
     this.generateBezierPath();
   };
@@ -90,15 +88,14 @@ class BezierProvider extends EventEmitter {
     const point2nd = this.points[2].point;
     const pointAvg = this.points[3].point;
     Vec2.scale(pointAvg, Vec2.add(pointAvg, point2nd, point3rd), 0.5);
-    this.points[3].weight = makeWeightedPoint(point2nd, pointAvg);
+    this.points[3].weight = calculateWeight(point2nd, pointAvg);
     this.length = 4;
 
     this.generateBezierPath(true);
   };
 
   generateBezierPath = (finalized = false) => {
-    const event = EVENTS[this.length - 1];
-    this.emit(event, this.points, finalized);
+    this.emit(EVENTS[this.length - 1], this.points, finalized);
   };
 }
 
