@@ -13,7 +13,7 @@ const TOUCH_DISTANCE_THRESHOLD = 2.0;
 /**
  * Weight for a dot
  */
-const DOT_SIGNATURE_WEIGHT = 3.0;
+const DOT_SIGNATURE_WEIGHT = 6.0;
 
 /**
  * The is the maximum length that will vary weight.

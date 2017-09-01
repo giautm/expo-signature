@@ -1,6 +1,7 @@
 import Vec2 from 'gl-matrix-vec2';
 
 import {
+  arc,
   linear,
   quadCurve,
   bezierCurve,
@@ -20,8 +21,15 @@ export function vec2Average(out, a, b) {
 
 class BezierPath_WeightedPoint {
 
-  dot = (center, radius) => {
-
+  dot = (onePoint) => {
+    const center = onePoint[0].point;
+    const b1 = arc(center, onePoint[0].weight / 2.0);
+    return this.withGenerators(b1, {
+      segments: 1,
+      generator: function() {
+        return center;
+      },
+    });
   };
 
   linear = (twoPoints) => {
@@ -74,8 +82,8 @@ class BezierPath_WeightedPoint {
       const t = i / segments;
 
       points.push({
-        first: g1.generator(t),
-        second: g2.generator(t),
+        first: g1.generator(t, i),
+        second: g2.generator(t, i),
       });
     }
 

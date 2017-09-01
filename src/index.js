@@ -29,9 +29,9 @@ class Signature extends React.Component {
     const weightedPath = new BezierPathWeightedPoint();
     this.bezierProvider = new BezierProvider();
 
-    // this.bezierProvider.addListener('doDot', (points) => {
-    //   this._drawUpdates(weightedPath.dot(points));
-    // });
+    this.bezierProvider.addListener('doDot', (points) => {
+      this._drawUpdates(weightedPath.dot(points));
+    });
     // this.bezierProvider.addListener('doLinear', (points) => {
     //   this._drawUpdates(weightedPath.linear(points));
     // });

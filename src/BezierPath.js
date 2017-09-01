@@ -11,10 +11,54 @@ function approxLength2(a, p1, p2) {
 const K_CONSTANT = 4.0 * (Math.SQRT2 - 1) / 3.0;
 
 export function arc(center, radius)  {
-  // return ({
-  //   segments: 1,
-  //   generator: (t) => (t === 0) ? a : b,
-  // });
+  const p1 = Vec2.add(Vec2.create(), center, Vec2.fromValues(0, radius));
+  const p2 = Vec2.add(Vec2.create(), center, Vec2.fromValues(radius, 0));
+  const p3 = Vec2.add(Vec2.create(), center, Vec2.fromValues(0, -radius));
+  const p4 = Vec2.add(Vec2.create(), center, Vec2.fromValues(-radius, 0));
+
+  const t1 = bezierCurve(
+    p1,
+    Vec2.scaleAndAdd(Vec2.create(), center, Vec2.fromValues(K_CONSTANT, 1), radius),
+    Vec2.scaleAndAdd(Vec2.create(), center, Vec2.fromValues(1, K_CONSTANT), radius),
+    p2,
+  );
+  const t2 = bezierCurve(
+    p2,
+    Vec2.scaleAndAdd(Vec2.create(), center, Vec2.fromValues(1, -K_CONSTANT), radius),
+    Vec2.scaleAndAdd(Vec2.create(), center, Vec2.fromValues(K_CONSTANT, -1), radius),
+    p3,
+  );
+  const t3 = bezierCurve(
+    p3,
+    Vec2.scaleAndAdd(Vec2.create(), center, Vec2.fromValues(-K_CONSTANT, -1), radius),
+    Vec2.scaleAndAdd(Vec2.create(), center, Vec2.fromValues(-1, -K_CONSTANT), radius),
+    p4,
+  );
+  const t4 = bezierCurve(
+    p4,
+    Vec2.scaleAndAdd(Vec2.create(), center, Vec2.fromValues(-1, K_CONSTANT), radius),
+    Vec2.scaleAndAdd(Vec2.create(), center, Vec2.fromValues(-K_CONSTANT, 1), radius),
+    p1,
+  );
+
+  return {
+    segments: 64,
+    generator: function (t, index) {
+      if (index <= 16) {
+        return t1.generator(index / 16.0);
+      }
+      index -= 16;
+      if (index <= 16) {
+        return t2.generator(index / 16.0);
+      }
+      index -= 16;
+      if (index <= 16) {
+        return t3.generator(index / 16.0);
+      }
+      index -= 16;
+      return t4.generator(index / 16.0);
+    }
+  };
 }
 
 export function linear(a, b) {
