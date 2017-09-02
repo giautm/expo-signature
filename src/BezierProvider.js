@@ -61,22 +61,23 @@ class BezierProvider extends EventEmitter {
 
       if (this.length > 2) {
         this.finalizeBezierPath(point);
-        Vec2.copy(this.points[0].point, this.points[3].point);
-        this.points[0].weight = this.points[3].weight;
-        this.length = 1;
+        this.addPointAndWeight(this.points[3].point, this.points[3].weight);
       }
       weight = calculateWeight(previewPoint, point);
     }
-
-    Vec2.copy(this.points[this.length].point, point);
-    this.points[this.length].weight = weight;
-    this.length++;
+    this.addPointAndWeight(point, weight);
 
     this.generateBezierPath();
   };
 
   reset = () => {
     this.length = 0;
+  };
+
+  addPointAndWeight = (point, weight) => {
+    Vec2.copy(this.points[this.length].point, point);
+    this.points[this.length].weight = weight;
+    this.length++;
   };
 
   finalizeBezierPath = (point3rd) => {
@@ -92,6 +93,7 @@ class BezierProvider extends EventEmitter {
     this.length = 4;
 
     this.generateBezierPath(true);
+    this.length = 0;
   };
 
   generateBezierPath = (finalized = false) => {
