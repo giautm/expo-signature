@@ -19,11 +19,8 @@ const LINE_SHADERS = {
 
 export class LineShader extends Shader {
   bindAttributeLocations = () => {
-    // vec4(255.0/255.0, 255.0/255.0, 255.0/255.0, 1.0)
     this._gl.bindAttribLocation(this.program,
       VertexAttrib.Position, 'position');
-    // this._gl.bindAttribLocation(this.program,
-    //   VertexAttrib.Color, 'color');
   };
 
   getUniformLocations = () => {

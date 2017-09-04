@@ -1,9 +1,9 @@
 import { EventEmitter } from 'fbemitter';
-import Vec2 from 'gl-matrix-vec2';
+import { vec2 } from 'gl-matrix';
 
 const EVENTS = [
   'doDot',
-  'doLinear',
+  'doLine',
   'doQuadCurve',
   'doBezierCurve',
 ];
@@ -35,7 +35,7 @@ const GRADIENT = 0.1;
 const CONSTANT = 2.0;
 
 export function calculateWeight(a, point) {
-  const invertLength = Math.max(0, MAX_LENGTH_RANGE - Vec2.distance(a, point));
+  const invertLength = Math.max(0, MAX_LENGTH_RANGE - vec2.distance(a, point));
   return GRADIENT * invertLength + CONSTANT;
 };
 
@@ -44,10 +44,10 @@ class BezierProvider extends EventEmitter {
     super();
     this.length = 0;
     this.points = [
-      { point: Vec2.create(), weight: 0 },
-      { point: Vec2.create(), weight: 0 },
-      { point: Vec2.create(), weight: 0 },
-      { point: Vec2.create(), weight: 0 },
+      { point: vec2.create(), weight: 0 },
+      { point: vec2.create(), weight: 0 },
+      { point: vec2.create(), weight: 0 },
+      { point: vec2.create(), weight: 0 },
     ];
   }
 
@@ -55,7 +55,7 @@ class BezierProvider extends EventEmitter {
     let weight = DOT_SIGNATURE_WEIGHT;
     if (this.length > 0) {
       const previewPoint = this.points[this.length - 1].point;
-      if (Vec2.length(previewPoint, point) < TOUCH_DISTANCE_THRESHOLD) {
+      if (vec2.length(previewPoint, point) < TOUCH_DISTANCE_THRESHOLD) {
         return;
       }
 
@@ -75,7 +75,7 @@ class BezierProvider extends EventEmitter {
   };
 
   addPointAndWeight = (point, weight) => {
-    Vec2.copy(this.points[this.length].point, point);
+    vec2.copy(this.points[this.length].point, point);
     this.points[this.length].weight = weight;
     this.length++;
   };
@@ -88,7 +88,7 @@ class BezierProvider extends EventEmitter {
      */
     const point2nd = this.points[2].point;
     const pointAvg = this.points[3].point;
-    Vec2.scale(pointAvg, Vec2.add(pointAvg, point2nd, point3rd), 0.5);
+    vec2.scale(pointAvg, vec2.add(pointAvg, point2nd, point3rd), 0.5);
     this.points[3].weight = calculateWeight(point2nd, pointAvg);
     this.length = 4;
 

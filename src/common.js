@@ -1,5 +1,3 @@
-import Vec2 from 'gl-matrix-vec2';
-
 const EPSILON = 0.00001;
 
 export const vec2Equals = (a, b) => {

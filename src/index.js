@@ -6,8 +6,7 @@ import {
 } from 'react-native';
 import { GLView } from 'expo';
 
-import Mat4 from 'gl-matrix-mat4';
-import Vec2 from 'gl-matrix-vec2';
+import { mat4, vec2 } from 'gl-matrix';
 
 import { createLineShader } from './shader';
 import BezierProvider from './BezierProvider';
@@ -32,8 +31,8 @@ class Signature extends React.Component {
     this.bezierProvider.addListener('doDot', (points) => {
       this._drawUpdates(weightedPath.dot(points));
     });
-    // this.bezierProvider.addListener('doLinear', (points) => {
-    //   this._drawUpdates(weightedPath.linear(points));
+    // this.bezierProvider.addListener('doLine', (points) => {
+    //   this._drawUpdates(weightedPath.line(points));
     // });
     // this.bezierProvider.addListener('doQuadCurve', (points) => {
     //   this._drawUpdates(weightedPath.quadCurve(points));
@@ -77,12 +76,20 @@ class Signature extends React.Component {
     if (this._layout && this.lineShader) {
       const { width, height } = this._layout;
 
-      const projection = Mat4.ortho(Mat4.create(),
+      const projection = mat4.ortho(mat4.create(),
         0, width, height, 0, -1.0, 1.0);
 
       this._gl.useProgram(this.lineShader.program);
       this._gl.uniformMatrix4fv(this.lineShader.projectionUniform,
         false, projection);
+
+        // const weightedPath = new BezierPathWeightedPoint();
+        // this._drawUpdates(weightedPath.dot([
+        //   {
+        //     point: vec2.fromValues(180, 180),
+        //     weight: 200,
+        //   }
+        // ]));
     }
   };
 
@@ -106,11 +113,11 @@ class Signature extends React.Component {
 
   _translationWithLayout = (page) => {
     if (this._layout) {
-      return Vec2.fromValues(page.pageX - this._layout.x,
+      return vec2.fromValues(page.pageX - this._layout.x,
         page.pageY - this._layout.y);
     }
 
-    return Vec2.fromValues(
+    return vec2.fromValues(
       page.pageX, page.pageY);
   };
 
