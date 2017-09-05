@@ -27,6 +27,26 @@ function singlePoint(point) {
   });
 }
 
+class Generator {
+  constructor(g1, g2) {
+    this.g1 = g1;
+    this.g2 = g2;
+  }
+
+  * getVertexData() {
+    const segments = Math.max(this.g1.segments, this.g2.segments);
+    for (let i = 0; i <= segments; ++i) {
+      const t = i / segments;
+      const v1 = this.g1.generator(t, i);
+      yield v1[0];
+      yield v1[1];
+      const v2 = this.g2.generator(t, i);
+      yield v2[0];
+      yield v2[1];
+    }
+  }
+}
+
 class BezierPath_WeightedPoint {
 
   dot = (onePoint) => {
@@ -79,18 +99,8 @@ class BezierPath_WeightedPoint {
   };
 
   withGenerators(g1, g2) {
-    const points = [];
-    const segments = Math.max(g1.segments, g2.segments);
-    for (let i = 0; i <= segments; ++i) {
-      const t = i / segments;
-
-      points.push({
-        first: g1.generator(t, i),
-        second: g2.generator(t, i),
-      });
-    }
-
-    return points;
+    const generator = new Generator(g1, g2);
+    return generator.getVertexData.bind(generator);
   }
 
   averageLine(lineA, lineB) {

@@ -3,9 +3,11 @@ import {
   PanResponder, 
   StyleSheet,
   View,
+  Text,
+  TouchableOpacity,
 } from 'react-native';
 import { GLView } from 'expo';
-
+import { EventEmitter } from 'fbemitter';
 import { mat4, vec2 } from 'gl-matrix';
 
 import { createLineShader } from './shader';
@@ -13,7 +15,12 @@ import BezierProvider from './BezierProvider';
 import BezierPathWeightedPoint from './BezierPath_WeightedPoint';
 import LineMeshController from './mesh/LineMeshController';
 
+
 class Signature extends React.Component {
+  static defaultProps = {
+    emitter: new EventEmitter(),
+    defaultButtons: true,
+  };
 
   constructor(props, context) {
     super(props, context);
@@ -42,6 +49,8 @@ class Signature extends React.Component {
       // this._drawUpdates(weightedPath.quadCurve(points.slice(3)), true);
       this._drawUpdates(weightedPath.bezierCurve(points));
     });
+
+    this.props.emitter.addListener('clear', this.clearSignature);
   }
 
   _onResponderGrant = (evt) => {
@@ -121,6 +130,20 @@ class Signature extends React.Component {
       page.pageX, page.pageY);
   };
 
+  clearSignature = () => {
+    console.log('Do Clear');
+    // Clear
+    this._gl.clearColor(0, 0, 0, 1);
+    this._gl.clear(this._gl.COLOR_BUFFER_BIT | this._gl.DEPTH_BUFFER_BIT);
+
+    this._gl.flush();
+    this._gl.endFrameEXP();
+  };
+
+  _handlePress = () => {
+    this.props.emitter.emit('clear');
+  };
+
   render() {
     return (
       <View
@@ -131,6 +154,15 @@ class Signature extends React.Component {
           style={StyleSheet.absoluteFill}
           {...this._panResponder.panHandlers}
         />
+        {this.props.defaultButtons && (
+          <TouchableOpacity
+          onPress={this._handlePress}
+          style={styles.buttonClear}>
+            <View style={{flex: 1}}>
+              <Text style={styles.buttonClearText}>Xóa</Text>
+            </View>
+          </TouchableOpacity>
+        )}
       </View>
     );
   }
@@ -141,6 +173,21 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     flex: 1,
     margin: 10,
+  },
+  buttonClear: {
+    position: 'absolute',
+    top: 5,
+    left: 5,
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    borderColor: '#fff',
+    borderWidth: 1,
+    borderRadius: 5,
+  },
+  buttonClearText: {
+    flex: 1,
+    backgroundColor: 'transparent',
+    color: '#fff',
   },
 });
 

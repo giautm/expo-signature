@@ -36,6 +36,7 @@ export function circle(center, radius)  {
   ];
   const p = adjs.map((v) => vec2.add(vec2.create(), center, v));
 
+  const out = vec2.create();
   return {
     segments: SEGS * 4,
     generator: function (_, index) {
@@ -45,7 +46,7 @@ export function circle(center, radius)  {
           vec2.transformMat2(v, v, TRANSFORM_PERPENDICULAR)));
       }
 
-      return bezierCubic(p[0], p[1], p[2], p[3], t2 / SEGS);
+      return bezierCubic(out, p[0], p[1], p[2], p[3], t2 / SEGS);
     }
   };
 }
@@ -53,20 +54,20 @@ export function circle(center, radius)  {
 export function linear(a, b) {
   return ({
     segments: 1,
-    generator: bezierLinear.bind(undefined, a, b),
+    generator: bezierLinear.bind(undefined, vec2.create(), a, b),
   });
 };
 
 export function quadCurve(a, p, b) {
   return ({
     segments: autoSegments(a, p, b),
-    generator: bezierQuadratic.bind(undefined, a, p, b),
+    generator: bezierQuadratic.bind(undefined, vec2.create(), a, p, b),
   })
 };
 
 export function bezierCurve(a, p1, p2, b) {
   return ({
     segments: autoSegments(a, p1, p2, b),
-    generator: bezierCubic.bind(undefined, a, p1, p2, b),
+    generator: bezierCubic.bind(undefined, vec2.create(), a, p1, p2, b),
   });
 };
