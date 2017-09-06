@@ -13,7 +13,7 @@ import { mat4, vec2 } from 'gl-matrix';
 import { createLineShader } from './shader';
 import BezierProvider from './BezierProvider';
 import BezierPathWeightedPoint from './BezierPath_WeightedPoint';
-import LineMeshController from './mesh/LineMeshController';
+import MeshController from './mesh/MeshController';
 
 
 class Signature extends React.Component {
@@ -65,20 +65,18 @@ class Signature extends React.Component {
     this.bezierProvider.reset();
   }
 
-  _drawUpdates = (positions, clear = false) => {
+  _drawUpdates = (getVertexData, clear = false) => {
     this._gl.useProgram(this.lineShader.program);
 
-    // if (clear) {
-    //   this._gl.uniform4f(this.lineShader.colorUniform,
-    //     0,0,0,1);
-    // } else {
-    //   this._gl.uniform4f(this.lineShader.colorUniform,
-    //     1,1,1,1);
-    // }
-    this.lineMeshController.draw(positions);
+    const vertexData = new Float32Array(getVertexData());
+    this.meshController.draw(vertexData, vertexData.length / 2);
 
     this._gl.flush();
     this._gl.endFrameEXP();
+
+    // requestAnimationFrame(() => {
+
+    // });
   };
 
   _setupProjection = () => {
@@ -109,8 +107,8 @@ class Signature extends React.Component {
     gl.clearColor(0, 0, 0, 1);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    this.lineMeshController = new LineMeshController();
-    this.lineMeshController.setupWebGL(gl);
+    this.meshController = new MeshController();
+    this.meshController.setupWebGL(gl);
     this.lineShader = createLineShader(gl);
     this._setupProjection();
   };

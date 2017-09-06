@@ -10,12 +10,17 @@ import { vec2Equals } from './common';
 
 const ZERO_VECTOR = vec2.create();
 
-const TWO_PI = Math.PI * 2;
-const sin = Math.sin;
-const cos = Math.cos;
+function lineCreate() {
+  return [
+    vec2.create(),
+    vec2.create(),
+  ];
+}
 
-export function vec2Average(out, a, b) {
-  return vec2.scale(out, vec2.add(out, a, b), 0.5);
+function lineAverage(out, lineA, lineB) {
+  vec2.scale(out[0], vec2.add(out[0], lineA[0], lineB[0]), 0.5);
+  vec2.scale(out[1], vec2.add(out[1], lineA[1], lineB[1]), 0.5);
+  return out;
 }
 
 function singlePoint(point) {
@@ -60,8 +65,8 @@ class BezierPath_WeightedPoint {
     const lineA = linePairAB.first;
     const lineB = linePairAB.second;
 
-    const b1 = linear(lineA.startPoint, lineB.startPoint);
-    const b2 = linear(lineA.endPoint, lineB.endPoint);
+    const b1 = linear(lineA[0], lineB[0]);
+    const b2 = linear(lineA[1], lineB[1]);
 
     return this.withGenerators(b1, b2);
   };
@@ -71,11 +76,11 @@ class BezierPath_WeightedPoint {
     const linePairBC = this.linesPerpendicularToLine(threePoints[1], threePoints[2]);
 
     const lineA = linePairAB.first;
-    const lineB = this.averageLine(linePairAB.second, linePairBC.first);
+    const lineB = lineAverage(lineCreate(), linePairAB.second, linePairBC.first);
     const lineC = linePairBC.second;
 
-    const b1 = quadCurve(lineA.startPoint, lineB.startPoint, lineC.startPoint);
-    const b2 = quadCurve(lineA.endPoint, lineB.endPoint, lineC.endPoint);
+    const b1 = quadCurve(lineA[0], lineB[0], lineC[0]);
+    const b2 = quadCurve(lineA[1], lineB[1], lineC[1]);
 
     return this.withGenerators(b1, b2);
   };
@@ -86,14 +91,12 @@ class BezierPath_WeightedPoint {
     const linePairCD = this.linesPerpendicularToLine(fourPoints[2], fourPoints[3]);
 
     const lineA = linePairAB.first;
-    const lineB = this.averageLine(linePairAB.second, linePairBC.first);
-    const lineC = this.averageLine(linePairBC.second, linePairCD.first);
+    const lineB = lineAverage(lineCreate(), linePairAB.second, linePairBC.first);
+    const lineC = lineAverage(lineCreate(), linePairBC.second, linePairCD.first);
     const lineD = linePairCD.second;
 
-    const b1 = bezierCurve(lineA.startPoint, lineB.startPoint,
-      lineC.startPoint, lineD.startPoint);
-    const b2 = bezierCurve(lineA.endPoint, lineB.endPoint,
-      lineC.endPoint, lineD.endPoint);
+    const b1 = bezierCurve(lineA[0], lineB[0], lineC[0], lineD[0]);
+    const b2 = bezierCurve(lineA[1], lineB[1], lineC[1], lineD[1]);
 
     return this.withGenerators(b1, b2);
   };
@@ -103,38 +106,32 @@ class BezierPath_WeightedPoint {
     return generator.getVertexData.bind(generator);
   }
 
-  averageLine(lineA, lineB) {
-    return ({
-      startPoint: vec2Average(vec2.create(),
-        lineA.startPoint, lineB.startPoint),
-      endPoint: vec2Average(vec2.create(),
-        lineA.endPoint, lineB.endPoint),
-    });
-  }
 
   linesPerpendicularToLine(pointA, pointB) {
     const lineVec = vec2.subtract(vec2.create(),
       pointB.point, pointA.point);
 
     return ({
-      first: this.linePerpendicularToLine(lineVec, pointA.point, pointA.weight),
-      second: this.linePerpendicularToLine(lineVec, pointB.point, pointB.weight),
+      first: this.linePerpendicularToLine(lineCreate(),
+        lineVec, pointA.point, pointA.weight),
+      second: this.linePerpendicularToLine(lineCreate(),
+        lineVec, pointB.point, pointB.weight),
     });
   }
 
-  linePerpendicularToLine(vec, middlePoint, weight) {
-    const startPoint = vec2.clone(middlePoint);
-    const endPoint = vec2.clone(middlePoint);
+  linePerpendicularToLine(out, vec, middlePoint, weight) {
     if (weight > 0 && !vec2Equals(vec, ZERO_VECTOR)) {
       const perpendicular = vec2.fromValues(vec[1], -vec[0]);
       vec2.normalize(perpendicular, perpendicular);
 
       const haflWeight = weight * 0.5;
-      vec2.scaleAndAdd(startPoint, startPoint, perpendicular, +haflWeight);
-      vec2.scaleAndAdd(endPoint, endPoint, perpendicular, -haflWeight);
+      vec2.scaleAndAdd(out[0], middlePoint, perpendicular, +haflWeight);
+      vec2.scaleAndAdd(out[1], middlePoint, perpendicular, -haflWeight);
+    } else {
+      vec2.copy(out[0], middlePoint);
+      vec2.copy(out[1], middlePoint);
     }
-
-    return ({ startPoint, endPoint });
+    return out;
   }
 }
 
