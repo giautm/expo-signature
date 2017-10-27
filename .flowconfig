@@ -27,6 +27,8 @@
 ; https://github.com/expo/expo/issues/162
 .*/node_modules/expo/src/*
 
+.*/node_modules/example/node_modules/*
+
 ; Ignore react-native-fbads dependency of the expo sdk
 .*/node_modules/react-native-fbads/*
 

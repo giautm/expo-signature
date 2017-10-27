@@ -1,6 +1,6 @@
 import React from 'react';
 
-import SignaturePad from 'expo-signature';
+import SignaturePad from './src/SignaturePad';
 
 export default class App extends React.Component {
   render() {

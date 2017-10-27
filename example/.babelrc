@@ -1,5 +1,5 @@
 {
-  "presets": ["babel-preset-expo"],
+  "presets": ["babel-preset-expo", "flow"],
   "plugins": [
     ["babel-plugin-inline-import", {
       "extensions": [

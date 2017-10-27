@@ -9,7 +9,6 @@ import {
 } from 'expo';
 
 import Line from './LineController';
-import Point from './Point';
 
 const vertSrc = `
 attribute vec2 a_position;
@@ -17,16 +16,16 @@ attribute vec2 a_position;
 uniform vec2 u_resolution;
 
 void main() {
-   // convert the rectangle points from pixels to 0.0 to 1.0
-   vec2 zeroToOne = a_position / u_resolution;
+  // convert the rectangle points from pixels to 0.0 to 1.0
+  vec2 zeroToOne = a_position / u_resolution;
 
-   // convert from 0->1 to 0->2
-   vec2 zeroToTwo = zeroToOne * 2.0;
+  // convert from 0->1 to 0->2
+  vec2 zeroToTwo = zeroToOne * 2.0;
 
-   // convert from 0->2 to -1->+1 (clipspace)
-   vec2 clipSpace = zeroToTwo - 1.0;
+  // convert from 0->2 to -1->+1 (clipspace)
+  vec2 clipSpace = zeroToTwo - 1.0;
 
-   gl_Position = vec4(clipSpace * vec2(1, -1), 0, 1);
+  gl_Position = vec4(clipSpace * vec2(1, -1), 0, 1);
 }
 `;
 
@@ -52,11 +51,16 @@ class SignaturePad extends React.Component {
     this._lines = [];
   }
 
+  createShaders = () => {
+
+  };
+
   _initGL = (gl) => {
     this._gl = gl;
     gl.enableLogging = __DEV__;
 
     // Compile vertex and fragment shader
+    console.log('x', gl.VERTEX_ARRAY_BINDING);
     const vert = gl.createShader(gl.VERTEX_SHADER);
     gl.shaderSource(vert, vertSrc);
     gl.compileShader(vert);
@@ -64,6 +68,7 @@ class SignaturePad extends React.Component {
     const frag = gl.createShader(gl.FRAGMENT_SHADER);
     gl.shaderSource(frag, fragSrc);
     gl.compileShader(frag);
+
     // Clear
     gl.clearColor(0, 0, 0, 1);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -99,7 +104,6 @@ class SignaturePad extends React.Component {
     console.log('Layout: ', this._layout);
 
     if (this._gl) {
-      console.log('Layout: ', this._layout);
       this._gl.uniform2f(this._resolutionUniform,
           this._layout.width, this._layout.height);
     }
@@ -133,16 +137,16 @@ class SignaturePad extends React.Component {
 
   _translationWithPageLayout = (page) => {
     if (this._layout) {
-      return new Point({
-        x: page.pageX - this._layout.x,
-        y: page.pageY - this._layout.y,
-      });
+      return ([
+        page.pageX - this._layout.x,
+        page.pageY - this._layout.y,
+      ]);
     }
 
-    return new Point({
-      x: page.pageX,
-      y: page.pageY,
-    });
+    return ([
+      page.pageX,
+      page.pageY,
+    ]);
   }
 
   render() {
