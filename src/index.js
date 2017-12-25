@@ -9,11 +9,13 @@ import {
 import { GLView } from 'expo';
 import { EventEmitter } from 'fbemitter';
 import { mat4, vec2 } from 'gl-matrix';
+import {AppState } from 'react-native';
 
 import { createLineShader } from './shader';
 import BezierProvider from './BezierProvider';
 import BezierPathWeightedPoint from './BezierPath_WeightedPoint';
 import MeshController from './mesh/MeshController';
+import { forEach } from 'gl-matrix/src/gl-matrix/vec4';
 
 
 class Signature extends React.Component {
@@ -51,6 +53,35 @@ class Signature extends React.Component {
     });
 
     this.props.emitter.addListener('clear', this.clearSignature);
+    this.lines = [];
+  }
+
+  componentDidMount() {
+    AppState.addEventListener('change', this._handleAppStateChange);
+  }
+
+  componentWillUnmount() {
+    AppState.removeEventListener('change', this._handleAppStateChange);
+  }
+
+  _handleAppStateChange = (nextAppState) => {
+    if (nextAppState === 'active') {
+      console.log('App has come to the foreground!')
+      if (this._gl) {
+        // Trying to redrawing everythings
+        this._gl.clearColor(0, 0, 0, 1);
+        this._gl.clear(this._gl.COLOR_BUFFER_BIT | this._gl.DEPTH_BUFFER_BIT);
+    
+        this._gl.useProgram(this.lineShader.program);
+
+        this.lines.forEach((vertexData) => {
+          this.meshController.draw(vertexData, vertexData.length / 2);
+        });
+  
+        this._gl.flush();
+        this._gl.endFrameEXP();
+      }
+    }
   }
 
   _onResponderGrant = (evt) => {
@@ -71,6 +102,7 @@ class Signature extends React.Component {
     const vertexData = new Float32Array(Array.from(getVertexData()));
     this.meshController.draw(vertexData, vertexData.length / 2);
 
+    this.lines.push(vertexData);
     this._gl.flush();
     this._gl.endFrameEXP();
 
