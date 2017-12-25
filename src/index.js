@@ -68,7 +68,7 @@ class Signature extends React.Component {
   _drawUpdates = (getVertexData, clear = false) => {
     this._gl.useProgram(this.lineShader.program);
 
-    const vertexData = new Float32Array(getVertexData());
+    const vertexData = new Float32Array(Array.from(getVertexData()));
     this.meshController.draw(vertexData, vertexData.length / 2);
 
     this._gl.flush();
