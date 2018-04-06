@@ -1,13 +1,13 @@
 {
   "name": "expo-signature",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "devDependencies": {
     "jest-expo": "^24.0.0",
     "react-native-scripts": "1.8.1",
     "react-test-renderer": "16.0.0-alpha.12"
   },
-  "main": "./node_modules/react-native-scripts/build/bin/crna-entry.js",
+  
   "scripts": {
     "start": "react-native-scripts start",
     "eject": "react-native-scripts eject",
@@ -20,11 +20,8 @@
   },
   "dependencies": {
     "babel-preset-es2015": "^6.24.1",
-    "expo": "^24.0.0",
     "fbemitter": "^2.1.1",
     "gl-matrix": "^2.4.0",
-    "react": "16.0.0",
-    "react-native": "https://github.com/expo/react-native/archive/sdk-24.0.0.tar.gz",
     "regl": "^1.3.0"
   }
 }
