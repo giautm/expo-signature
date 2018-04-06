@@ -189,7 +189,7 @@ class Signature extends React.Component {
           onPress={this._handlePress}
           style={styles.buttonClear}>
             <View style={{flex: 1}}>
-              <Text style={styles.buttonClearText}>Xóa</Text>
+              <Text style={styles.buttonClearText}>Clear</Text>
             </View>
           </TouchableOpacity>
         )}
