@@ -8,7 +8,6 @@ import {
   quadCurve,
   singlePoint,
 } from "./BezierPath";
-import { vec2Equals } from "./common";
 
 const ZERO_VECTOR = vec2.create();
 
@@ -35,16 +34,16 @@ function linePerpendicularToLine(
   middlePoint: vec2,
   weight: number
 ) {
-  if (weight > 0 && !vec2Equals(vec, ZERO_VECTOR)) {
+  if (weight <= 0 || vec2.equals(vec, ZERO_VECTOR)) {
+    vec2.copy(out[0], middlePoint);
+    vec2.copy(out[1], middlePoint);
+  } else {
     const perpendicular = vec2.fromValues(vec[1], -vec[0]);
     vec2.normalize(perpendicular, perpendicular);
 
     const haflWeight = weight * 0.5;
     vec2.scaleAndAdd(out[0], middlePoint, perpendicular, +haflWeight);
     vec2.scaleAndAdd(out[1], middlePoint, perpendicular, -haflWeight);
-  } else {
-    vec2.copy(out[0], middlePoint);
-    vec2.copy(out[1], middlePoint);
   }
 
   return out;
@@ -77,7 +76,8 @@ class BezierPath_WeightedPoint {
     const center = points[0].point;
 
     const g1 = circle(center, points[0].weight / 2.0);
-    return createGenerator(g1, singlePoint(center));
+    const g2 = singlePoint(center);
+    return createGenerator(g1, g2);
   };
 
   static line = (points: readonly [WeightedPoint, WeightedPoint]) => {
