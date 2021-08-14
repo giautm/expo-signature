@@ -16,8 +16,7 @@ import { vec2 } from "gl-matrix";
 import { AppState } from "react-native";
 
 import BezierProvider from "./BezierProvider";
-import BezierPathWeightedPoint from "./BezierPath_WeightedPoint";
-import Drawer from "./Drawer";
+import Drawer from "./drawer";
 
 type Props = {
   defaultButtons?: boolean;
@@ -42,8 +41,7 @@ class Signature extends React.Component<Props> {
         return;
       }
 
-      // @ts-ignore
-      this.drawer?.drawUpdates(BezierPathWeightedPoint[type](points));
+      this.drawer?.drawUpdates(type, points);
     });
 
     this._panResponder = PanResponder.create({

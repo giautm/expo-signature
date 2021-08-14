@@ -1,6 +1,7 @@
 import { mat4 } from "gl-matrix";
 import { createLineShader, LineShader } from "./shader";
 import MeshController from "./mesh/MeshController";
+import BezierPathWeightedPoint, { WeightedPoint } from "./BezierPath_WeightedPoint";
 
 class Drawer {
   controller: MeshController;
@@ -42,7 +43,12 @@ class Drawer {
     );
   }
 
-  drawUpdates = (getVertexData: () => Iterable<number>) => {
+  drawUpdates = (type: string, points: WeightedPoint[]) => {
+    // @ts-ignore
+    this._drawUpdates(BezierPathWeightedPoint[type](points))
+  };
+
+  _drawUpdates = (getVertexData: () => Iterable<number>) => {
     this.gl.useProgram(this.lineShader.program);
 
     const data = new Float32Array(Array.from(getVertexData()));
@@ -53,7 +59,7 @@ class Drawer {
 
     // @ts-ignore
     this.gl.endFrameEXP();
-  };
+  }
 
   redraw() {
     this._clear();
