@@ -9,16 +9,16 @@ import {
   bezierQuadratic,
 } from './BezierCurves';
 
-function approxLength() {
+function approxLength(...points: vec2[]) {
   let total = 0;
-  for (let i = 1, l = arguments.length; i < l; ++i) {
+  for (let i = 1, l = points.length; i < l; ++i) {
     total += vec2.distance(arguments[i - 1], arguments[i]);
   }
   return total;
 }
 
-function autoSegments() {
-  const tmp = approxLength.call(null, arguments) / 20.0;
+function autoSegments(...points: vec2[]) {
+  const tmp = approxLength(...points) / 20.0;
   return Math.ceil(Math.sqrt(tmp * tmp * 0.6 + 225.0));
 }
 
@@ -27,7 +27,17 @@ const K_CONSTANT = 4.0 * (Math.SQRT2 - 1) / 3.0;
 const TRANSFORM_PERPENDICULAR = mat2.fromValues(0, -1, 1, 0);
 const SEGS = 8;
 
-export function circle(center, radius)  {
+
+export function singlePoint(point: vec2) {
+  return {
+    segments: 1,
+    generator: function () {
+      return point;
+    },
+  };
+}
+
+export function circle(center: vec2, radius: number) {
   const adjs = [
     vec2.fromValues(0, radius),
     vec2.fromValues(K_CONSTANT * radius, radius),
@@ -39,7 +49,7 @@ export function circle(center, radius)  {
   const out = vec2.create();
   return {
     segments: SEGS * 4,
-    generator: function (_, index) {
+    generator: function (_: number, index: number) {
       const t2 = index % SEGS;
       if (index > 0 && t2 === 0) {
         adjs.forEach((v, i) => vec2.add(p[i], center,
@@ -51,23 +61,23 @@ export function circle(center, radius)  {
   };
 }
 
-export function linear(a, b) {
+export function linear(a: vec2, b: vec2) {
   return ({
     segments: 1,
-    generator: bezierLinear.bind(undefined, vec2.create(), a, b),
+    generator: (t: number) => bezierLinear(vec2.create(), a, b, t),
   });
 };
 
-export function quadCurve(a, p, b) {
+export function quadCurve(a: vec2, p: vec2, b: vec2) {
   return ({
     segments: autoSegments(a, p, b),
-    generator: bezierQuadratic.bind(undefined, vec2.create(), a, p, b),
+    generator: (t: number) => bezierQuadratic(vec2.create(), a, p, b, t),
   })
 };
 
-export function bezierCurve(a, p1, p2, b) {
+export function bezierCurve(a: vec2, p1: vec2, p2: vec2, b: vec2) {
   return ({
     segments: autoSegments(a, p1, p2, b),
-    generator: bezierCubic.bind(undefined, vec2.create(), a, p1, p2, b),
+    generator: (t: number) => bezierCubic(vec2.create(), a, p1, p2, b, t),
   });
 };

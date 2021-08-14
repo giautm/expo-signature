@@ -1,38 +1,29 @@
 {
-  "name": "expo-signature",
-  "version": "0.1.0",
-  "private": true,
-  "devDependencies": {
-    "jest-expo": "^24.0.0",
-    "react-native-scripts": "1.8.1",
-    "react-test-renderer": "16.0.0-alpha.12"
-  },
-  "main": "./node_modules/react-native-scripts/build/bin/crna-entry.js",
+  "main": "node_modules/expo/AppEntry.js",
   "scripts": {
-    "start": "react-native-scripts start",
-    "eject": "react-native-scripts eject",
-    "android": "react-native-scripts android",
-    "ios": "react-native-scripts ios",
-    "test": "node node_modules/jest/bin/jest.js --watch"
-  },
-  "jest": {
-    "preset": "jest-expo"
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web",
+    "eject": "expo eject"
   },
   "dependencies": {
-    "babel-preset-es2015": "^6.24.1",
-<<<<<<< HEAD
-    "expo": "^24.0.0",
-    "fbemitter": "^2.1.1",
-    "gl-matrix": "^2.4.0",
-    "react": "16.0.0",
-    "react-native": "https://github.com/expo/react-native/archive/sdk-24.0.0.tar.gz",
-=======
-    "expo": "^22.0.0",
-    "fbemitter": "^2.1.1",
-    "gl-matrix": "^2.4.0",
-    "react": "16.0.0-beta.5",
-    "react-native": "https://github.com/expo/react-native/archive/sdk-22.0.1.tar.gz",
->>>>>>> 521c5ecc7d2cc087ab573786a7b70f6fe75dd32e
-    "regl": "^1.3.0"
-  }
+    "expo": "~42.0.1",
+    "expo-gl": "10.4.2",
+    "expo-status-bar": "~1.0.4",
+    "fbemitter": "3.0.0",
+    "gl-matrix": "3.3.0",
+    "react": "16.13.1",
+    "react-dom": "16.13.1",
+    "react-native": "https://github.com/expo/react-native/archive/sdk-42.0.0.tar.gz",
+    "react-native-web": "~0.13.12"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.9.0",
+    "@types/fbemitter": "2.0.32",
+    "@types/react": "~16.9.35",
+    "@types/react-native": "~0.63.2",
+    "typescript": "~4.0.0"
+  },
+  "private": true
 }

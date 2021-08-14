@@ -1,19 +1,19 @@
-// @flow
-import { VertexAttrib } from '../shader/Shader';
+import { VertexAttrib } from "../shader/Shader";
 
 class MeshController {
-  _gl: any;
+  _gl: WebGL2RenderingContext | null = null;
 
-  setupWebGL = (gl: any) => {
+  setupWebGL = (gl: WebGL2RenderingContext) => {
     this._gl = gl;
     this.setupVAO();
   };
 
-  getContextGL = (): any => {
+  getContextGL = (): WebGL2RenderingContext => {
     if (this._gl) {
       return this._gl;
     }
-    throw new Error('WebGL not initialized ');
+
+    throw new Error("WebGL not initialized ");
   };
 
   setupVAO = () => {
@@ -23,11 +23,10 @@ class MeshController {
     gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
 
     gl.enableVertexAttribArray(VertexAttrib.Position);
-    gl.vertexAttribPointer(VertexAttrib.Position,
-      2, gl.FLOAT, false, 0, 0);
+    gl.vertexAttribPointer(VertexAttrib.Position, 2, gl.FLOAT, false, 0, 0);
   };
 
-  draw = (vertexData, elements) => {
+  draw = (vertexData: BufferSource, elements: number) => {
     const gl = this.getContextGL();
 
     gl.bufferData(gl.ARRAY_BUFFER, vertexData, gl.STATIC_DRAW);

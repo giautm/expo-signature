@@ -1,9 +1,33 @@
 {
   "expo": {
-<<<<<<< HEAD
-    "sdkVersion": "24.0.0"
-=======
-    "sdkVersion": "22.0.0"
->>>>>>> 521c5ecc7d2cc087ab573786a7b70f6fe75dd32e
+    "owner": "giautm",
+    "name": "expo-signature-example2",
+    "slug": "expo-signature-example2",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#FFFFFF"
+      }
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    }
   }
 }

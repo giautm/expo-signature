@@ -2,10 +2,10 @@ import { EventEmitter } from 'fbemitter';
 import { vec2 } from 'gl-matrix';
 
 const EVENTS = [
-  'doDot',
-  'doLine',
-  'doQuadCurve',
-  'doBezierCurve',
+  'dot',
+  'line',
+  'quadCurve',
+  'bezierCurve',
 ];
 
 const TOUCH_DISTANCE_THRESHOLD = 2.0;
@@ -34,28 +34,25 @@ const MAX_LENGTH_RANGE = 50.0;
 const GRADIENT = 0.1;
 const CONSTANT = 2.0;
 
-export function calculateWeight(a, point) {
+export function calculateWeight(a: vec2, point: vec2) {
   const invertLength = Math.max(0, MAX_LENGTH_RANGE - vec2.distance(a, point));
   return GRADIENT * invertLength + CONSTANT;
 };
 
 class BezierProvider extends EventEmitter {
-  constructor() {
-    super();
-    this.length = 0;
-    this.points = [
-      { point: vec2.create(), weight: 0 },
-      { point: vec2.create(), weight: 0 },
-      { point: vec2.create(), weight: 0 },
-      { point: vec2.create(), weight: 0 },
-    ];
-  }
+  length: number = 0
+  points = [
+    { point: vec2.create(), weight: 0 },
+    { point: vec2.create(), weight: 0 },
+    { point: vec2.create(), weight: 0 },
+    { point: vec2.create(), weight: 0 },
+  ];
 
-  addPoint = (point) => {
+  addPoint = (point: vec2) => {
     let weight = DOT_SIGNATURE_WEIGHT;
     if (this.length > 0) {
       const previewPoint = this.points[this.length - 1].point;
-      if (vec2.length(previewPoint, point) < TOUCH_DISTANCE_THRESHOLD) {
+      if (vec2.distance(previewPoint, point) < TOUCH_DISTANCE_THRESHOLD) {
         return;
       }
 
@@ -74,13 +71,13 @@ class BezierProvider extends EventEmitter {
     this.length = 0;
   };
 
-  addPointAndWeight = (point, weight) => {
+  addPointAndWeight = (point: vec2, weight: number) => {
     vec2.copy(this.points[this.length].point, point);
     this.points[this.length].weight = weight;
     this.length++;
   };
 
-  finalizeBezierPath = (point3rd) => {
+  finalizeBezierPath = (point3rd: vec2) => {
     /**
      * Smooth the join between beziers by modifying
      * the last pointof the current bezier to equal
@@ -97,7 +94,10 @@ class BezierProvider extends EventEmitter {
   };
 
   generateBezierPath = (finalized = false) => {
-    this.emit(EVENTS[this.length - 1], this.points, finalized);
+    this.emit('drawPath', {
+      type: EVENTS[this.length - 1],
+      points: this.points,
+    }, finalized);
   };
 }
 

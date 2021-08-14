@@ -4,7 +4,6 @@ import { View, StyleSheet } from 'react-native';
 import Signature from './src';
 
 export default class App extends Component {
-
   render() {
     return (
       <Signature
@@ -15,5 +14,7 @@ export default class App extends Component {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
+  container: {
+    flex: 1,
+  },
 });
