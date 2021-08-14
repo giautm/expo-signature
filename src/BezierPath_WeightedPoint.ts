@@ -1,11 +1,11 @@
 import { vec2 } from "gl-matrix";
-import { withGenerators } from "./BezierCurves";
 
 import {
+  bezierCurve,
   circle,
+  createGenerator,
   linear,
   quadCurve,
-  bezierCurve,
   singlePoint,
 } from "./BezierPath";
 import { vec2Equals } from "./common";
@@ -77,7 +77,7 @@ class BezierPath_WeightedPoint {
     const center = points[0].point;
 
     const g1 = circle(center, points[0].weight / 2.0);
-    return withGenerators(g1, singlePoint(center));
+    return createGenerator(g1, singlePoint(center));
   };
 
   static line = (points: readonly [WeightedPoint, WeightedPoint]) => {
@@ -87,7 +87,7 @@ class BezierPath_WeightedPoint {
 
     const g1 = linear(lineA[0], lineB[0]);
     const g2 = linear(lineA[1], lineB[1]);
-    return withGenerators(g1, g2);
+    return createGenerator(g1, g2);
   };
 
   static quadCurve = (
@@ -102,7 +102,7 @@ class BezierPath_WeightedPoint {
 
     const g1 = quadCurve(lineA[0], lineB[0], lineC[0]);
     const g2 = quadCurve(lineA[1], lineB[1], lineC[1]);
-    return withGenerators(g1, g2);
+    return createGenerator(g1, g2);
   };
 
   static bezierCurve = (
@@ -113,26 +113,18 @@ class BezierPath_WeightedPoint {
       WeightedPoint
     ]
   ) => {
-    const linePairAB = linesPerpendicularToLine(points[0], points[1]);
-    const linePairBC = linesPerpendicularToLine(points[1], points[2]);
-    const linePairCD = linesPerpendicularToLine(points[2], points[3]);
+    const lineAB = linesPerpendicularToLine(points[0], points[1]);
+    const lineBC = linesPerpendicularToLine(points[1], points[2]);
+    const lineCD = linesPerpendicularToLine(points[2], points[3]);
 
-    const lineA = linePairAB.first;
-    const lineB = lineAverage(
-      lineCreate(),
-      linePairAB.second,
-      linePairBC.first
-    );
-    const lineC = lineAverage(
-      lineCreate(),
-      linePairBC.second,
-      linePairCD.first
-    );
-    const lineD = linePairCD.second;
+    const lineA = lineAB.first;
+    const lineB = lineAverage(lineCreate(), lineAB.second, lineBC.first);
+    const lineC = lineAverage(lineCreate(), lineBC.second, lineCD.first);
+    const lineD = lineCD.second;
 
     const g1 = bezierCurve(lineA[0], lineB[0], lineC[0], lineD[0]);
     const g2 = bezierCurve(lineA[1], lineB[1], lineC[1], lineD[1]);
-    return withGenerators(g1, g2);
+    return createGenerator(g1, g2);
   };
 }
 

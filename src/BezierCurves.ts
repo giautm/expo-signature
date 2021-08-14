@@ -1,4 +1,4 @@
-import { ReadonlyVec2, vec2 } from "gl-matrix";
+import type { ReadonlyVec2, vec2 } from "gl-matrix";
 
 export function bezierLinear(
   out: vec2,
@@ -52,35 +52,4 @@ export function bezierCubic(
     3 * tt * nt * p2[1] +
     tt * t * b[1];
   return out;
-}
-
-
-type GeneratorA = {
-  segments: number;
-  generator: (t: number, index: number) => vec2;
-};
-
-class Generator {
-  constructor(readonly g1: GeneratorA, readonly g2: GeneratorA) {
-    this.g1 = g1;
-    this.g2 = g2;
-  }
-
-  *getVertexData() {
-    const segments = Math.max(this.g1.segments, this.g2.segments);
-    for (let i = 0; i <= segments; ++i) {
-      const t = i / segments;
-      const v1 = this.g1.generator(t, i);
-      yield v1[0];
-      yield v1[1];
-      const v2 = this.g2.generator(t, i);
-      yield v2[0];
-      yield v2[1];
-    }
-  }
-}
-
-export function withGenerators(g1: GeneratorA, g2: GeneratorA) {
-  const generator = new Generator(g1, g2);
-  return () => generator.getVertexData();
 }

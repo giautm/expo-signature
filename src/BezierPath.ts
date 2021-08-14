@@ -81,3 +81,23 @@ export function bezierCurve(a: vec2, p1: vec2, p2: vec2, b: vec2) {
     generator: (t: number) => bezierCubic(vec2.create(), a, p1, p2, b, t),
   });
 };
+
+type Generator = {
+  segments: number;
+  generator: (t: number, index: number) => vec2;
+};
+
+export function createGenerator(g1: Generator, g2: Generator) {
+  return function*() {
+    const segments = Math.max(g1.segments, g2.segments);
+    for (let i = 0; i <= segments; ++i) {
+      const t = i / segments;
+      const v1 = g1.generator(t, i);
+      yield v1[0];
+      yield v1[1];
+      const v2 = g2.generator(t, i);
+      yield v2[0];
+      yield v2[1];
+    }
+  };
+}
