@@ -1,14 +1,5 @@
 import { vec2 } from "gl-matrix";
 
-import {
-  bezierCurve,
-  circle,
-  createGenerator,
-  linear,
-  quadCurve,
-  singlePoint,
-} from "./BezierPath";
-
 const ZERO_VECTOR = vec2.create();
 
 type Line = readonly [vec2, vec2];
@@ -71,28 +62,29 @@ function linesPerpendicularToLine(
   };
 }
 
+export interface DrawerHelper {
+  circle(center: vec2, radius: number): void;
+  lines(...lines: (readonly [vec2, vec2])[]): void;
+}
+
 class BezierPath_WeightedPoint {
-  static dot = (points: readonly [WeightedPoint]) => {
-    const center = points[0].point;
+  static dot(points: readonly [WeightedPoint], helper: DrawerHelper) {
+    const { point, weight } = points[0];
+    helper.circle(point, weight / 2.0);
+  }
 
-    const g1 = circle(center, points[0].weight / 2.0);
-    const g2 = singlePoint(center);
-    return createGenerator(g1, g2);
-  };
+  static line(
+    points: readonly [WeightedPoint, WeightedPoint],
+    helper: DrawerHelper
+  ) {
+    const { first, second } = linesPerpendicularToLine(points[0], points[1]);
+    helper.lines(first, second);
+  }
 
-  static line = (points: readonly [WeightedPoint, WeightedPoint]) => {
-    const lineAB = linesPerpendicularToLine(points[0], points[1]);
-    const lineA = lineAB.first;
-    const lineB = lineAB.second;
-
-    const g1 = linear(lineA[0], lineB[0]);
-    const g2 = linear(lineA[1], lineB[1]);
-    return createGenerator(g1, g2);
-  };
-
-  static quadCurve = (
-    points: readonly [WeightedPoint, WeightedPoint, WeightedPoint]
-  ) => {
+  static quadCurve(
+    points: readonly [WeightedPoint, WeightedPoint, WeightedPoint],
+    helper: DrawerHelper
+  ) {
     const lineAB = linesPerpendicularToLine(points[0], points[1]);
     const lineBC = linesPerpendicularToLine(points[1], points[2]);
 
@@ -100,19 +92,18 @@ class BezierPath_WeightedPoint {
     const lineB = lineAverage(lineCreate(), lineAB.second, lineBC.first);
     const lineC = lineBC.second;
 
-    const g1 = quadCurve(lineA[0], lineB[0], lineC[0]);
-    const g2 = quadCurve(lineA[1], lineB[1], lineC[1]);
-    return createGenerator(g1, g2);
-  };
+    helper.lines(lineA, lineB, lineC);
+  }
 
-  static bezierCurve = (
+  static bezierCurve(
     points: readonly [
       WeightedPoint,
       WeightedPoint,
       WeightedPoint,
       WeightedPoint
-    ]
-  ) => {
+    ],
+    helper: DrawerHelper
+  ) {
     const lineAB = linesPerpendicularToLine(points[0], points[1]);
     const lineBC = linesPerpendicularToLine(points[1], points[2]);
     const lineCD = linesPerpendicularToLine(points[2], points[3]);
@@ -122,10 +113,8 @@ class BezierPath_WeightedPoint {
     const lineC = lineAverage(lineCreate(), lineBC.second, lineCD.first);
     const lineD = lineCD.second;
 
-    const g1 = bezierCurve(lineA[0], lineB[0], lineC[0], lineD[0]);
-    const g2 = bezierCurve(lineA[1], lineB[1], lineC[1], lineD[1]);
-    return createGenerator(g1, g2);
-  };
+    helper.lines(lineA, lineB, lineC, lineD);
+  }
 }
 
 export default BezierPath_WeightedPoint;

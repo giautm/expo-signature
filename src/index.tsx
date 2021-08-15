@@ -15,8 +15,9 @@ import { GLView } from "expo-gl";
 import { vec2 } from "gl-matrix";
 import { AppState } from "react-native";
 
-import BezierProvider from "./BezierProvider";
-import Drawer from "./drawer";
+import BezierProvider from "./core/BezierProvider";
+import BezierPath_WeightedPoint from "./core/BezierPath_WeightedPoint";
+import Drawer, { WebGLDrawer } from "./drawer";
 
 type Props = {
   defaultButtons?: boolean;
@@ -35,14 +36,21 @@ class Signature extends React.Component<Props> {
   constructor(props: Props) {
     super(props);
     this.bezierProvider = new BezierProvider();
-    this.bezierProvider.addListener("drawPath", (ev: any, finalized: boolean) => {
-      const { type, points } = ev;
-      if (type === "line" || type === "quadCurve") {
-        return;
-      }
+    this.bezierProvider.addListener(
+      "drawPath",
+      (ev: any, finalized: boolean) => {
+        const { type, points } = ev;
+        if (type === "line" || type === "quadCurve") {
+          return;
+        }
 
-      this.drawer?.drawUpdates(type, points);
-    });
+        if (this.drawer) {
+          const helper = new WebGLDrawer(this.drawer.drawUpdates);
+          // @ts-ignore
+          BezierPath_WeightedPoint[type](points, helper);
+        }
+      }
+    );
 
     this._panResponder = PanResponder.create({
       onStartShouldSetPanResponder: (evt, gs) => true,

@@ -20,14 +20,7 @@ const K_CONSTANT = (4.0 * (Math.SQRT2 - 1)) / 3.0;
 const TRANSFORM_PERPENDICULAR = mat2.fromValues(0, -1, 1, 0);
 const SEGS = 8;
 
-export function singlePoint(point: vec2) {
-  return {
-    segments: 1,
-    generate: () => point,
-  };
-}
-
-export function circle(center: vec2, radius: number) {
+function circle(center: vec2, radius: number) {
   const adjs = [
     vec2.fromValues(0, radius),
     vec2.fromValues(K_CONSTANT * radius, radius),
@@ -56,43 +49,82 @@ export function circle(center: vec2, radius: number) {
   };
 }
 
-export function linear(a: vec2, b: vec2) {
+function singlePoint(point: vec2) {
+  return {
+    segments: 1,
+    generate: () => point,
+  };
+}
+
+function linear(a: vec2, b: vec2) {
   return {
     segments: 1,
     generate: (t: number) => bezierLinear(vec2.create(), a, b, t),
   };
 }
 
-export function quadCurve(a: vec2, p: vec2, b: vec2) {
+function quadCurve(a: vec2, p: vec2, b: vec2) {
   return {
     segments: autoSegments(a, p, b),
     generate: (t: number) => bezierQuadratic(vec2.create(), a, p, b, t),
   };
 }
 
-export function bezierCurve(a: vec2, p1: vec2, p2: vec2, b: vec2) {
+function bezierCurve(a: vec2, p1: vec2, p2: vec2, b: vec2) {
   return {
     segments: autoSegments(a, p1, p2, b),
     generate: (t: number) => bezierCubic(vec2.create(), a, p1, p2, b, t),
   };
 }
 
-type Generator = {
+type GeneratorSource = {
   segments: number;
   generate: (t: number, index: number) => vec2;
 };
 
-export function createGenerator(g1: Generator, g2: Generator) {
-  return function* () {
-    const segments = Math.max(g1.segments, g2.segments);
-    for (let i = 0; i <= segments; ++i) {
-      const t = i / segments;
-      const v1 = g1.generate(t, i);
-      yield v1[0];
-      yield v1[1];
-      const v2 = g2.generate(t, i);
-      yield v2[0];
-      yield v2[1];
+function* createGenerator(g1: GeneratorSource, g2: GeneratorSource) {
+  const segments = Math.max(g1.segments, g2.segments);
+  for (let i = 0; i <= segments; ++i) {
+    const t = i / segments;
+    const v1 = g1.generate(t, i);
+    yield v1[0];
+    yield v1[1];
+    const v2 = g2.generate(t, i);
+    yield v2[0];
+    yield v2[1];
+  }
+}
+
+export class WebGLDrawer {
+  constructor(
+    readonly updater: (gen: Generator<number, void, unknown>) => void
+  ) {}
+  circle(center: vec2, radius: number) {
+    const g1 = circle(center, radius);
+    const g2 = singlePoint(center);
+
+    this.updater(createGenerator(g1, g2));
+  }
+
+  lines(...lines: readonly [vec2, vec2][]) {
+    let g1: GeneratorSource, g2: GeneratorSource;
+    switch (lines.length) {
+      case 2:
+        g1 = linear(lines[0][0], lines[1][0]);
+        g2 = linear(lines[0][1], lines[1][1]);
+        break;
+      case 3:
+        g1 = quadCurve(lines[0][0], lines[1][0], lines[2][0]);
+        g2 = quadCurve(lines[0][1], lines[1][1], lines[2][1]);
+        break;
+      case 4:
+        g1 = bezierCurve(lines[0][0], lines[1][0], lines[2][0], lines[3][0]);
+        g2 = bezierCurve(lines[0][1], lines[1][1], lines[2][1], lines[3][1]);
+        break;
+      default:
+        throw new Error("Invalid number of lines");
     }
-  };
+
+    this.updater(createGenerator(g1, g2));
+  }
 }
